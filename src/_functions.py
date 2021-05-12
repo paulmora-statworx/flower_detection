@@ -1,6 +1,7 @@
 
 # %% Packages
 
+import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
@@ -32,7 +33,7 @@ def image_loader(index_list, image_path, target_size):
         target_size ([int]): How large the output image should be
 
     Returns:
-        [list]: Array with tensors of every image
+        [array]: Array with tensors of every image
     """
     image_list = []
     adj_indices = adjust_index_names(index_list)
@@ -40,8 +41,11 @@ def image_loader(index_list, image_path, target_size):
         tf_image = tf.keras.preprocessing.image.load_img(
             path=f"{image_path}/image_{index}.jpg",
             grayscale=False,
-            target_size=(target_size, target_size),
+            target_size=target_size,
         )
         img_array = keras.preprocessing.image.img_to_array(tf_image)
         image_list.append(img_array)
+    image_list = np.array(image_list)
     return image_list
+
+# %%
