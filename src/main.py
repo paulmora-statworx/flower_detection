@@ -1,21 +1,30 @@
+
 """This file applies transfer learning on the Flowers102 dataset"""
 
 # %% Packages
 
-import numpy as np
-import matplotlib.pyplot as plt
 import tensorflow as tf
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Dense
 from tensorflow.keras.applications import MobileNetV2
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from sklearn.model_selection import train_test_split
+from tensorflow.keras.callbacks import EarlyStopping
 
-from src._functions import loading_images_array, load_labels
+from src.loading_functions import loading_images_array, load_labels
+from src.datagenerator_functions import train_val_test_split, create_generators
+from src.plotting_functions import (
+    plot_distribution,
+    plot_example_images,
+    plot_model_performance,
+)
 
 # %% Constants
 
 TARGET_SIZE = (224, 224)
 BATCH_SIZE = 32
-SEED = 42
+RANDOM_STATE = 42
+LEARNING_RATE = 1e-3
+NUMBER_OF_BASE_EPOCHS = 15
+TRAIN_SIZE = 0.8
 
 # %% Data Loading
 
@@ -26,91 +35,86 @@ image_data = loading_images_array(TARGET_SIZE)
 one_hot_labels = load_labels()
 
 # Splitting the data into train and test
-X_train, X_test, y_train, y_test = train_test_split(
-    image_data,
-    one_hot_labels,
-    train_size=0.8,
-    random_state=SEED,
+X_train, X_val, X_test, y_train, y_val, y_test = train_val_test_split(
+    X=image_data,
+    y=one_hot_labels,
+    train_size=TRAIN_SIZE,
+    random_state=RANDOM_STATE,
     shuffle=True,
-    stratify=image_labels,
 )
 
-# Splitting train and validation
-X_train, X_val, y_train, y_val = train_test_split(
-    X_train, y_train, train_size=0.8, random_state=SEED, shuffle=True, stratify=y_train
+train_generator, valid_generator, test_generator = create_generators(
+    X_train=X_train,
+    X_val=X_val,
+    X_test=X_test,
+    y_train=y_train,
+    y_val=y_val,
+    y_test=y_test,
+    batch_size=BATCH_SIZE,
 )
 
-# Data Augmentation setup for train
-train_data_gen = ImageDataGenerator(
-    rotation_range=20,
-    width_shift_range=0.2,
-    height_shift_range=0.2,
-    zoom_range=0.2,
-    shear_range=0.1,
-)
+# %% Example plots
 
-# Data Augmentation setup for test
-test_data_gen = ImageDataGenerator()
+y_dict = {"Train": y_train, "Validation": y_val, "Test": y_test}
+plot_distribution(y_dict)
+plot_example_images(train_generator)
 
-# Setting up the generators for train
-training_generator = train_data_gen.flow(x=X_train, y=y_train, batch_size=BATCH_SIZE)
-
-# Setting up the generators for validation
-valid_generator = test_data_gen.flow(x=X_val, y=y_val, batch_size=BATCH_SIZE)
-
-# Setting up the generators for test
-test_generator = test_data_gen.flow(x=X_test, y=y_test, batch_size=BATCH_SIZE)
-
-# %% Plotting distribution of labels
-
-np.sum(y_val, axis=0)
-
-
-# %% Plotting sample images
-
-number_of_example_images = 9
-ncols = int(np.sqrt(number_of_example_images))
-nrows = ncols
-images, _ = next(iter(training_generator))
-
-fig, axs = plt.subplots(figsize=(10, 10), ncols=ncols, nrows=nrows)
-axs = axs.ravel()
-for i, image in enumerate(images[:number_of_example_images]):
-    axs[i].imshow(image / 255)
-    axs[i].axis("off")
-plt.show()
-
-# %% Base Model
+# %% Base Model - Only training the top layer of the model
 
 IMG_SHAPE = TARGET_SIZE + (3,)
-base_model = tf.keras.applications.MobileNetV2(
-    input_shape=IMG_SHAPE, include_top=False, pooling="avg"
-)
+base_model = MobileNetV2(input_shape=IMG_SHAPE, include_top=False, pooling="avg")
 base_model.trainable = False
-preprocess_input = tf.keras.applications.mobilenet_v2.preprocess_input
 
-from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense
-
-number_of_categories = len(set(image_labels))
-
+number_of_categories = one_hot_labels.shape[1]
 model = Sequential()
 model.add(base_model)
 model.add(Dense(number_of_categories, activation="softmax"))
-model.compile(loss="categorical_crossentropy", metrics=["accuracy"])
+model.compile(
+    loss="categorical_crossentropy",
+    metrics=["accuracy"],
+    optimizer=tf.keras.optimizers.RMSprop(learning_rate=LEARNING_RATE),
+)
 
 model.summary()
 
-from tensorflow.keras.callbacks import EarlyStopping
-
 custom_callbacks = [EarlyStopping(monitor="val_accuracy", mode="max", patience=3)]
 training_history = model.fit(
-    training_generator,
-    epochs=15,
+    train_generator,
+    epochs=NUMBER_OF_BASE_EPOCHS,
     validation_data=valid_generator,
     callbacks=custom_callbacks,
 )
 
-a, b = next(iter(training_generator))
+path = "./models/oxford_flower102.h5"
+model.save(filepath=path)
+plot_model_performance(training_history)
 
-len(b[0])
+# %% Fine-tuning
+
+base_model.trainable = True
+number_of_all_layers = len(base_model.layers)
+ratio_to_be_trained = 1 / 3
+non_trained_layers = int(number_of_all_layers * (1 - ratio_to_be_trained))
+for layer in base_model.layers[:non_trained_layers]:
+    layer.trainable = False
+
+adjusted_learning_rate = LEARNING_RATE / 10
+
+model.compile(
+    loss="categorical_crossentropy",
+    metrics=["accuracy"],
+    optimizer=tf.keras.optimizers.Adam(learning_rate=adjusted_learning_rate),
+)
+model.summary()
+len(model.trainable_variables)
+
+fine_tune_epoch = 10
+total_epochs = 15 + fine_tune_epoch
+
+fine_tune_history = model.fit(
+    training_generator,
+    initial_epoch=training_history.epoch[-1],
+    epochs=total_epochs,
+    validation_data=valid_generator,
+    callbacks=custom_callbacks,
+)
