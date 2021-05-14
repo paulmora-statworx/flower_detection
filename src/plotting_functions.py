@@ -37,7 +37,7 @@ def plot_example_images(generator):
     fig.savefig(fname=path, bbox_inches="tight")
 
 
-def plot_model_performance(history):
+def plot_model_performance(history, img_name, vline_level=None):
     training_loss = history.history["loss"]
     validation_loss = history.history["val_loss"]
 
@@ -51,11 +51,17 @@ def plot_model_performance(history):
     axs[0].set_title("Loss")
     axs[0].legend()
 
+    if vline_level is not None:
+        axs[0].axvline(x=vline_level, ymin=0, ymax=1)
+
     axs[1].plot(training_acc, label="Training")
     axs[1].plot(validation_acc, label="Validation")
     axs[1].set_title("Accuracy")
     axs[1].legend()
 
-    path = f"{FIGURES_PATH}/loss_acc.png"
+    if vline_level is not None:
+        axs[1].axvline(x=vline_level, ymin=0, ymax=1)
+
+    path = f"{FIGURES_PATH}/loss_acc_{img_name}.png"
     fig.savefig(fname=path, bbox_inches="tight")
     plt.show()
