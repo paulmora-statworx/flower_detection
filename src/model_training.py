@@ -13,7 +13,7 @@ from src.datagenerator_functions import train_val_test_split, create_generators
 from src.plotting_functions import (
     plot_distribution,
     plot_example_images,
-    plot_model_performance
+    plot_model_performance,
 )
 
 # %% Constants
@@ -25,7 +25,7 @@ LEARNING_RATE = 1e-3
 NUMBER_OF_BASE_EPOCHS = 10
 NUMBER_OF_FINE_TUNING_EPOCHS = 10
 TRAIN_SIZE = 0.8
-RATIO_OF_LAYERS_RETRAINED = 1/ 3
+RATIO_OF_LAYERS_RETRAINED = 1 / 3
 NUMBER_OF_PATIENCE_STEPS = 3
 
 # %% Data Loading
@@ -42,7 +42,7 @@ X_train, X_val, X_test, y_train, y_val, y_test = train_val_test_split(
     y=one_hot_labels,
     train_size=TRAIN_SIZE,
     random_state=RANDOM_STATE,
-    shuffle=True
+    shuffle=True,
 )
 
 train_generator, valid_generator, test_generator = create_generators(
@@ -52,7 +52,7 @@ train_generator, valid_generator, test_generator = create_generators(
     y_train=y_train,
     y_val=y_val,
     y_test=y_test,
-    batch_size=BATCH_SIZE
+    batch_size=BATCH_SIZE,
 )
 
 # %% Example plots
@@ -75,16 +75,18 @@ model.add(Dropout(rate=0.2))
 model.compile(
     loss="categorical_crossentropy",
     metrics=["accuracy"],
-    optimizer=tf.keras.optimizers.RMSprop(learning_rate=LEARNING_RATE)
+    optimizer=tf.keras.optimizers.RMSprop(learning_rate=LEARNING_RATE),
 )
 print(model.summary())
 
-custom_callbacks = [EarlyStopping(monitor="val_accuracy", mode="max", patience=NUMBER_OF_PATIENCE_STEPS)]
+custom_callbacks = [
+    EarlyStopping(monitor="val_accuracy", mode="max", patience=NUMBER_OF_PATIENCE_STEPS)
+]
 training_history = model.fit(
     train_generator,
     epochs=NUMBER_OF_BASE_EPOCHS,
     validation_data=valid_generator,
-    callbacks=custom_callbacks
+    callbacks=custom_callbacks,
 )
 
 path = "./models/oxford_flower102.h5"
@@ -112,9 +114,11 @@ fine_tune_history = model.fit(
     initial_epoch=training_history.epoch[-1],
     epochs=total_epochs,
     validation_data=valid_generator,
-    callbacks=custom_callbacks
+    callbacks=custom_callbacks,
 )
 
 path = "./models/oxford_flower102_finetuning.h5"
 model.save(filepath=path)
-plot_model_performance(fine_tune_history, img_path="ftuning_model", vline_level=NUMBER_OF_BASE_EPOCHS)
+plot_model_performance(
+    fine_tune_history, img_path="ftuning_model", vline_level=NUMBER_OF_BASE_EPOCHS
+)
