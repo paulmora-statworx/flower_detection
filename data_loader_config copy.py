@@ -2,7 +2,9 @@
 
 import tensorflow as tf
 
-# %% DataGenerator Settings
+# %% Data Loader
+
+
 
 train_data_augmentation_settings = {
     "rotation_range": 20,

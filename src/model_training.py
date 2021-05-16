@@ -22,7 +22,7 @@ TARGET_SIZE = (224, 224)
 BATCH_SIZE = 32
 RANDOM_STATE = 42
 LEARNING_RATE = 1e-3
-NUMBER_OF_BASE_EPOCHS = 15
+NUMBER_OF_BASE_EPOCHS = 10
 NUMBER_OF_FINE_TUNING_EPOCHS = 10
 TRAIN_SIZE = 0.8
 RATIO_OF_LAYERS_RETRAINED = 1/ 3
@@ -96,11 +96,9 @@ plot_model_performance(training_history, img_path="base_model")
 base_model.trainable = True
 number_of_all_layers = len(base_model.layers)
 non_trained_layers = int(number_of_all_layers * (1 - RATIO_OF_LAYERS_RETRAINED))
-adjusted_learning_rate = LEARNING_RATE / 10
-
 for layer in base_model.layers[:non_trained_layers]:
     layer.trainable = False
-
+adjusted_learning_rate = LEARNING_RATE / 100
 model.compile(
     loss="categorical_crossentropy",
     metrics=["accuracy"],

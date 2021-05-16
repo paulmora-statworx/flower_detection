@@ -62,6 +62,8 @@ def plot_model_performance(history, img_name, vline_level=None):
     if vline_level is not None:
         axs[1].axvline(x=vline_level, ymin=0, ymax=1)
 
+    plt.show()
+
     path = f"{FIGURES_PATH}/loss_acc_{img_name}.png"
     fig.savefig(fname=path, bbox_inches="tight")
     plt.show()
