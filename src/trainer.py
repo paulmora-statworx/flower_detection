@@ -7,6 +7,10 @@ from tensorflow.keras.callbacks import EarlyStopping
 
 
 class OxfordFlower102Trainer:
+    """
+    This class is training the base-model and fine-tunes the model
+    """
+
     def __init__(self, model, data_generator, config):
         self.config = config
         self.model = model
@@ -34,6 +38,10 @@ class OxfordFlower102Trainer:
         ]
 
     def train_model(self):
+        """
+        This method is training the base_model
+        :return: /
+        """
         history = self.model.base_model.fit(
             self.train_data_generator,
             verbose=self.config.trainer.verbose_training,
@@ -44,6 +52,10 @@ class OxfordFlower102Trainer:
         self.append_model_data(history)
 
     def train_fine_tune(self):
+        """
+        This method is unfreezing some layers of the already trained model and re-trains the model
+        :return: /
+        """
         total_epochs = (
             self.config.trainer.number_of_base_epochs
             + self.config.trainer.number_of_fine_tune_epochs
@@ -64,6 +76,11 @@ class OxfordFlower102Trainer:
         self.plot_history("fine_tune_model")
 
     def append_model_data(self, history):
+        """
+        This method is
+        :param history: Tensorflow model history
+        :return: /
+        """
         self.loss.extend(history.history["loss"])
         self.val_loss.extend(history.history["val_loss"])
 
@@ -71,7 +88,11 @@ class OxfordFlower102Trainer:
         self.val_acc.extend(history.history["val_accuracy"])
 
     def plot_history(self, title):
-
+        """
+        This method is plotting the accuracy and loss of the plots
+        :param title: str - Used to save the png
+        :return: /
+        """
         fig, axs = plt.subplots(figsize=(10, 5), ncols=2)
         axs = axs.ravel()
         axs[0].plot(self.loss, label="Training")
@@ -103,5 +124,9 @@ class OxfordFlower102Trainer:
         fig.savefig(f"./reports/figures/history_{title}.png")
 
     def save_model(self):
+        """
+        Saving the fine-tuned model
+        :return: /
+        """
         path = "./models/oxford_flower102_fine_tuning.h5"
         self.fine_tune_model.save(filepath=path)

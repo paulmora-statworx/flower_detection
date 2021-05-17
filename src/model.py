@@ -9,13 +9,21 @@ from tensorflow.keras.applications import MobileNetV2
 
 
 class OxfordFlower102Model:
+    """
+    This class is initializing the model
+    """
+
     def __init__(self, config):
         self.config = config
         self.base_model = self.build_model()
         tf.random.set_seed(self.config.model.random_seed)
 
     def build_model(self):
-
+        """
+        This method build the basic model. The basic model describes the pre-trained model plus a dense layer
+        on top which is individualized to the number of categories needed. The model is also compiled
+        :return: A compiled tensorflow model
+        """
         pre_trained_model = self.initialize_pre_trained_model()
         top_model = self.create_top_layers()
 
@@ -34,6 +42,14 @@ class OxfordFlower102Model:
         return model
 
     def unfreeze_top_n_layers(self, model, ratio):
+        """
+        This method unfreezes a certain number of layers of the pre-trained model and combines it subsequently with the
+        pre-trained top layer which was added within the 'create_top_layers' method and trained within the 'build_model'
+        class
+        :param model: Tensorflow model which was already fitted
+        :param ratio: Float of how many layers should not be trained of the entire model
+        :return: Compiled tensorflow model
+        """
         base_model = model.layers[0]
         trained_top_model = model.layers[1]
 
@@ -59,6 +75,10 @@ class OxfordFlower102Model:
         return fine_tune_model
 
     def initialize_pre_trained_model(self):
+        """
+        This method calls the pre-trained model. In this case we are loading the MobileNetV2
+        :return: Tensorflow model
+        """
         image_shape = (
             self.config.data_loader.target_size,
             self.config.data_loader.target_size,
@@ -71,6 +91,10 @@ class OxfordFlower102Model:
         return base_model
 
     def create_top_layers(self):
+        """
+        Creating the tensorflow top-layer of a model
+        :return: Tensorflow Sequential model
+        """
         top_model = Sequential()
         top_model.add(
             Dense(self.config.model.number_of_categories, activation="softmax")
