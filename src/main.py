@@ -23,9 +23,6 @@ def main():
     print("Creating the Trainer!")
     trainer = OxfordFlower102Trainer(model, data_loader, config)
 
-    print("Evaluating the Model!")
-    trainer.train()
-
 
 if __name__ == "__main__":
     main()

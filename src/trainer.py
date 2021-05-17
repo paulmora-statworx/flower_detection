@@ -18,8 +18,11 @@ class OxfordFlower102Trainer:
         self.val_acc = []
 
         self._init_callbacks()
+        print("Train the base Model!")
         self.train_model()
+        print("Fine tune the Model!")
         self.train_fine_tune()
+        self.save_model()
 
     def _init_callbacks(self):
         self.custom_callbacks = [
@@ -30,13 +33,6 @@ class OxfordFlower102Trainer:
             )
         ]
 
-    def append_model_data(self, history):
-        self.loss.extend(history.history["loss"])
-        self.val_loss.extend(history.history["val_loss"])
-
-        self.acc.extend(history.history["accuracy"])
-        self.val_acc.extend(history.history["val_accuracy"])
-
     def train_model(self):
         history = self.model.base_model.fit(
             self.train_data_generator,
@@ -46,18 +42,17 @@ class OxfordFlower102Trainer:
             callbacks=self.custom_callbacks,
         )
         self.append_model_data(history)
-        self.visualize_data("base_model")
 
     def train_fine_tune(self):
         total_epochs = (
             self.config.trainer.number_of_base_epochs
             + self.config.trainer.number_of_fine_tune_epochs
         )
-        fine_tune_model = self.model.unfreeze_top_n_layers(
+        self.fine_tune_model = self.model.unfreeze_top_n_layers(
             self.model.base_model, self.config.trainer.percentage_of_frozen_layers
         )
 
-        fine_tune_history = fine_tune_model.fit(
+        fine_tune_history = self.fine_tune_model.fit(
             self.train_data_generator,
             verbose=self.config.trainer.verbose_training,
             initial_epoch=self.config.trainer.number_of_base_epochs,
@@ -66,4 +61,45 @@ class OxfordFlower102Trainer:
             callbacks=self.custom_callbacks,
         )
         self.append_model_data(fine_tune_history)
-        self.visualize_data("fine_tune")
+        self.plot_history("fine_tune_model")
+
+    def append_model_data(self, history):
+        self.loss.extend(history.history["loss"])
+        self.val_loss.extend(history.history["val_loss"])
+
+        self.acc.extend(history.history["accuracy"])
+        self.val_acc.extend(history.history["val_accuracy"])
+
+    def plot_history(self, title):
+        ymin = min(self.acc + self.val_acc)
+        ymax = max(self.acc + self.val_acc)
+
+        fig, axs = plt.subplots(figsize=(10, 5), ncols=2)
+        axs = axs.ravel()
+        axs[0].plot(self.loss, label="Training")
+        axs[0].plot(self.val_loss, label="Validation")
+        axs[0].set_title("Loss")
+        axs[0].legend()
+        axs[0].axvline(
+            x=self.config.trainer.number_of_base_epochs,
+            ymin=0,
+            ymax=1,
+            label="BaseEpochs",
+        )
+
+        axs[1].plot(self.acc, label="Training")
+        axs[1].plot(self.val_acc, label="Validation")
+        axs[1].set_title("Accuracy")
+        axs[1].legend()
+        axs[1].axvline(
+            x=self.config.trainer.number_of_base_epochs,
+            ymin=ymin,
+            ymax=ymax,
+            label="BaseEpochs",
+        )
+
+        fig.savefig(f"./reports/figures/history_{title}.png")
+
+    def save_model(self):
+        path = "./models/oxford_flower102_fine_tuning.h5"
+        self.fine_tune_model.save(filepath=path)

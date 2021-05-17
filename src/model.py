@@ -31,6 +31,7 @@ class OxfordFlower102Model:
                 learning_rate=self.config.model.learning_rate
             ),
         )
+        model.summary()
         return model
 
     def unfreeze_top_n_layers(self, model, ratio):
