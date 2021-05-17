@@ -6,7 +6,6 @@ from src.loading_functions import load_labels, loading_images_array
 
 # %% Tests
 
-
 def test_load_labels():
     labels = load_labels()
     assert len(labels) == 8189, "Not the right length!"

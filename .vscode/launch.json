@@ -10,10 +10,14 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
             "env": {
-                "PYTHONPATH": "${workspaceRoot}",
+                "PYTHONPATH": "${cwd}",
                 "PYDEVD_WARN_EVALUATION_TIMEOUT": "500"
-            }
+            },
+            "args": [
+                "--config", "./src/config.json"
+            ]
         }
     ]
 }
