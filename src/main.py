@@ -21,9 +21,9 @@ def main():
     model = OxfordFlower102Model(config)
 
     print("Creating the Trainer!")
-    trainer = OxfordFlower102Trainer(model, data_loader.get_train_generator, config)
+    trainer = OxfordFlower102Trainer(model, data_loader, config)
 
-    print("Start training the Model!")
+    print("Evaluating the Model!")
     trainer.train()
 
 

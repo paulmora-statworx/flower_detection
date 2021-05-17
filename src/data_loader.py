@@ -14,31 +14,33 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 class OxfordFlower102DataLoader:
     def __init__(self, config):
         self.config = config
-        self.train_generator, self.test_generator = self.create_generators()
-
-    def get_train_generator(self):
-        return self.train_generator
-
-    def get_test_generator(self):
-        return self.test_generator
+        (
+            self.train_generator,
+            self.val_generator,
+            self.test_generator,
+        ) = self.create_generators()
 
     def create_generators(self):
 
-        X_train, X_test, y_train, y_test = self._image_and_labels()
+        X_train, X_val, X_test, y_train, y_val, y_test = self._image_and_labels()
         train_augment_settings, test_augment_settings = self._add_preprocess_function()
 
         # Data Augmentation setup initialization
         train_data_gen = ImageDataGenerator(**train_augment_settings)
+        valid_data_gen = ImageDataGenerator(**test_augment_settings)
         test_data_gen = ImageDataGenerator(**test_augment_settings)
 
         # Setting up the generators
         training_generator = train_data_gen.flow(
             x=X_train, y=y_train, batch_size=self.config.data_loader.batch_size
         )
+        validation_generator = valid_data_gen.flow(
+            x=X_val, y=y_val, batch_size=self.config.data_loader.batch_size
+        )
         test_generator = test_data_gen.flow(
             x=X_test, y=y_test, batch_size=self.config.data_loader.batch_size
         )
-        return training_generator, test_generator
+        return training_generator, validation_generator, test_generator
 
     def _add_preprocess_function(self):
         train_augment_settings = self.config.data_loader.train_augmentation_settings
@@ -66,7 +68,15 @@ class OxfordFlower102DataLoader:
             shuffle=True,
             stratify=y,
         )
-        return X_train, X_test, y_train, y_test
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_train,
+            y_train,
+            train_size=self.config.data_loader.train_size,
+            random_state=self.config.data_loader.random_state,
+            shuffle=True,
+            stratify=y_train,
+        )
+        return X_train, X_val, X_test, y_train, y_val, y_test
 
     def _load_labels(self):
         imagelabels_file_path = "./data/imagelabels.mat"
