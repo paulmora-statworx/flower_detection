@@ -78,12 +78,12 @@ class OxfordFlower102Trainer:
         axs[0].plot(self.val_loss, label="Validation")
         axs[0].set_title("Loss")
         axs[0].axvline(
-            x=(self.config.trainer.number_of_base_epochs-1),
+            x=(self.config.trainer.number_of_base_epochs - 1),
             ymin=0,
             ymax=1,
             label="BaseEpochs",
             color="green",
-            linestyle="--"
+            linestyle="--",
         )
         axs[0].legend()
 
@@ -91,12 +91,12 @@ class OxfordFlower102Trainer:
         axs[1].plot(self.val_acc, label="Validation")
         axs[1].set_title("Accuracy")
         axs[1].axvline(
-            x=(self.config.trainer.number_of_base_epochs-1),
+            x=(self.config.trainer.number_of_base_epochs - 1),
             ymin=0,
             ymax=1,
             label="BaseEpochs",
             color="green",
-            linestyle="--"
+            linestyle="--",
         )
         axs[1].legend()
 

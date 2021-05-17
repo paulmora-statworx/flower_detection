@@ -15,6 +15,7 @@ class OxfordFlower102DataLoader:
     """
     This class loads the images and labels and embeds them into ImageDataGenerators.
     """
+
     def __init__(self, config):
         self.config = config
         (
