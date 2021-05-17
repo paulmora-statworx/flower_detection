@@ -71,32 +71,34 @@ class OxfordFlower102Trainer:
         self.val_acc.extend(history.history["val_accuracy"])
 
     def plot_history(self, title):
-        ymin = min(self.acc + self.val_acc)
-        ymax = max(self.acc + self.val_acc)
 
         fig, axs = plt.subplots(figsize=(10, 5), ncols=2)
         axs = axs.ravel()
         axs[0].plot(self.loss, label="Training")
         axs[0].plot(self.val_loss, label="Validation")
         axs[0].set_title("Loss")
-        axs[0].legend()
         axs[0].axvline(
-            x=self.config.trainer.number_of_base_epochs,
+            x=(self.config.trainer.number_of_base_epochs-1),
             ymin=0,
             ymax=1,
             label="BaseEpochs",
+            color="green",
+            linestyle="--"
         )
+        axs[0].legend()
 
         axs[1].plot(self.acc, label="Training")
         axs[1].plot(self.val_acc, label="Validation")
         axs[1].set_title("Accuracy")
-        axs[1].legend()
         axs[1].axvline(
-            x=self.config.trainer.number_of_base_epochs,
-            ymin=ymin,
-            ymax=ymax,
+            x=(self.config.trainer.number_of_base_epochs-1),
+            ymin=0,
+            ymax=1,
             label="BaseEpochs",
+            color="green",
+            linestyle="--"
         )
+        axs[1].legend()
 
         fig.savefig(f"./reports/figures/history_{title}.png")
 

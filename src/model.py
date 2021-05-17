@@ -1,8 +1,6 @@
 # %% Packages
 
-import copy
 import tensorflow as tf
-from tensorflow.keras import Model
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from tensorflow.keras.applications import MobileNetV2
@@ -14,6 +12,7 @@ class OxfordFlower102Model:
     def __init__(self, config):
         self.config = config
         self.base_model = self.build_model()
+        tf.random.set_seed(self.config.model.random_seed)
 
     def build_model(self):
 

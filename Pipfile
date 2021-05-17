@@ -16,6 +16,9 @@ pandas = "*"
 scikit-learn = "*"
 pytest = "*"
 dotmap = "*"
+ipykernel = "*"
+jupyter = "*"
+seedir = "*"
 
 [requires]
 python_version = "3.7"

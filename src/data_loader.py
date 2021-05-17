@@ -12,6 +12,9 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 class OxfordFlower102DataLoader:
+    """
+    This class loads the images and labels and embeds them into ImageDataGenerators.
+    """
     def __init__(self, config):
         self.config = config
         (
@@ -21,7 +24,12 @@ class OxfordFlower102DataLoader:
         ) = self.create_generators()
 
     def create_generators(self):
-
+        """
+        This method loads the labels and images, which are already split into train, test and validation.
+        Furthermore, we add an additional step to the preprocessing function, which is required for the pre-trained
+        model. Afterwards we create ImageGenerators from tensorflow for train, test and validation.
+        :return: ImageDataGenerator for training, validation and testing
+        """
         X_train, X_val, X_test, y_train, y_val, y_test = self._image_and_labels()
         train_augment_settings, test_augment_settings = self._add_preprocess_function()
 
@@ -43,6 +51,11 @@ class OxfordFlower102DataLoader:
         return training_generator, validation_generator, test_generator
 
     def _add_preprocess_function(self):
+        """
+        This function adds the pre-processing function for the MobileNet_v2 to the settings dictionary.
+        The pre-processing function is needed since the base-model was trained using it.
+        :return: Dictionaries with multiple items of image augmentation
+        """
         train_augment_settings = self.config.data_loader.train_augmentation_settings
         test_augment_settings = self.config.data_loader.test_augmentation_settings
         train_augment_settings.update(
@@ -58,6 +71,10 @@ class OxfordFlower102DataLoader:
         return train_augment_settings, test_augment_settings
 
     def _image_and_labels(self):
+        """
+        This method loads labels and images and afterwards split them into training, validation and testing set
+        :return: Trainings, Validation and Testing Images and Labels
+        """
         y = self._load_labels()
         X = self._loading_images_array()
         X_train, X_test, y_train, y_test = train_test_split(
@@ -79,6 +96,10 @@ class OxfordFlower102DataLoader:
         return X_train, X_val, X_test, y_train, y_val, y_test
 
     def _load_labels(self):
+        """
+        Loading the matlab file and one-hot encodes them.
+        :return: Numpy array of one-hot encoding labels
+        """
         imagelabels_file_path = "./data/imagelabels.mat"
         image_labels = loadmat(imagelabels_file_path)["labels"][0]
         image_labels_2d = image_labels.reshape(-1, 1)
@@ -88,6 +109,10 @@ class OxfordFlower102DataLoader:
         return one_hot_labels
 
     def _loading_images_array(self):
+        """
+        Loading the flower images and resizes them into the appropriate size. Lastly we turn the images into a numpy array
+        :return: Numpy array of the images
+        """
         image_path = "./data/jpg"
         image_file_names = os.listdir(image_path)
         image_file_names.sort()

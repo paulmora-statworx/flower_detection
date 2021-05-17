@@ -1,10 +1,10 @@
 # %% Packages
 
-from src.utils.args import get_args
-from src.utils.config import process_config
-from src.model import OxfordFlower102Model
-from src.data_loader import OxfordFlower102DataLoader
-from src.trainer import OxfordFlower102Trainer
+from utils.args import get_args
+from utils.config import process_config
+from model import OxfordFlower102Model
+from data_loader import OxfordFlower102DataLoader
+from trainer import OxfordFlower102Trainer
 
 # %% Main Script
 
