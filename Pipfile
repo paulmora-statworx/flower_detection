@@ -19,6 +19,7 @@ dotmap = "*"
 ipykernel = "*"
 jupyter = "*"
 seedir = "*"
+coremltools = "*"
 
 [requires]
 python_version = "3.7"
