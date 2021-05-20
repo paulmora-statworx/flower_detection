@@ -1,4 +1,4 @@
-# flower_detection
+# Flower Classification using Transfer Learning
 
 This project applies transfer-learning to build an Flower classification model.
 Specifically we are using the MobileNetV2 model as the base and retrain it on the
@@ -16,7 +16,8 @@ python3 main.py --config ./src/config.json
 
 ## Preview
 
-git 
+![Alt Text](https://github.com/paulmora-statworx/flower_detection/blob/main/reports/gif/testing_gif.gif)
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to
 discuss what you would like to change.
