@@ -16,7 +16,7 @@ python3 main.py --config ./src/config.json
 
 ## Preview
 
-
+git 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to
 discuss what you would like to change.
