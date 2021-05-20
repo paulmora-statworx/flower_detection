@@ -1,9 +1,10 @@
 # Data
 /data/
 /models/
-/app/Model/
+/app/
 /reports/external_images/
 /reports/ppt/
+/notebooks/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
