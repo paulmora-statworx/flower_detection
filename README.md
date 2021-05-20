@@ -1,2 +1,25 @@
 # flower_detection
-Building an App for a Flower Detection
+
+This project applies transfer-learning to build an Flower classification model.
+Specifically we are using the MobileNetV2 model as the base and retrain it on the
+Oxford Flower 102 dataset before applying further fine-tuning. Finally we
+deployed the model as an app for ios devices
+
+## Installation
+
+All relevant packages are stated within the requirements file as well as pipfiles,
+which were used for the project.
+
+```Usage in bash
+python3 main.py --config ./src/config.json
+```
+
+## Preview
+
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to
+discuss what you would like to change.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
