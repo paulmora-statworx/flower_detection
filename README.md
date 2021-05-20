@@ -16,7 +16,7 @@ python3 main.py --config ./src/config.json
 
 ## Preview
 
-![Alt Text](https://github.com/paulmora-statworx/flower_detection/blob/main/reports/gif/testing_gif.gif)
+<img src="https://github.com/paulmora-statworx/flower_detection/blob/main/reports/gif/testing_gif.gif" width="500"/>
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to
